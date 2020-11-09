@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import * as THREE from 'three';
+import { Geometry, Object3D } from 'three';
 
 @Component({
   selector: 'app-root',
@@ -12,6 +13,11 @@ export class AppComponent implements OnInit {
   public renderer = new THREE.WebGLRenderer({
     antialias: true
   });
+  public light = new THREE.DirectionalLight(0xffffff, 1);
+
+  public objects = [];
+  public spread = 15
+
 
 
   ngOnInit() {
@@ -21,5 +27,41 @@ export class AppComponent implements OnInit {
   private init() {
     this.scene.background = new THREE.Color(0xaaaaaa);
     this.camera.position.z = 120;
+    this.light.position.set(-1, 2, 4);
+    this.scene.add(this.light);
+
+    this.addSolidGeometry(-2, 2, new THREE.BoxBufferGeometry(8, 8, 8));
+    this.addSolidGeometry(-1, 2, new THREE.CircleBufferGeometry(7, 24));
+    this.addSolidGeometry(0, 2, new THREE.ConeBufferGeometry(6, 8, 16));
+    this.addSolidGeometry(1, 2, new THREE.CylinderBufferGeometry(4, 4, 8, 12));
+    this.addSolidGeometry(2, 2, new THREE.DodecahedronBufferGeometry(7));
+    this.addSolidGeometry(-1, 1, new THREE.IcosahedronBufferGeometry(7));
+  }
+
+  private addObjects(x: number, y: number, obj: Object3D) {
+    obj.position.x = x * this.spread;
+    obj.position.y = y * this.spread;
+
+    this.scene.add(obj);
+    this.objects.push(obj);
+  }
+
+  private createMaterial() {
+    const material = new THREE.MeshPhongMaterial({
+      side: THREE.DoubleSide
+    });
+
+    const hue = Math.random();
+    const saturation = 1;
+    const luminance = .5;
+
+    material.color.setHSL(hue, saturation, luminance);
+
+    return material;
+  }
+
+  private addSolidGeometry(x: number, y: number, geometry: any) {
+    const mesh = new THREE.Mesh(geometry, this.createMaterial());
+    this.addObjects(x, y, mesh);
   }
 }
